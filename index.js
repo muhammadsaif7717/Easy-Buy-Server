@@ -3,8 +3,6 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const cors = require("cors");
 const app = express();
 require('dotenv').config();
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken');
 const port = process.env.PORT || 5000
 
 app.use(cors())
@@ -31,7 +29,7 @@ async function run() {
         // await client.connect();
 
 
-        userCollection = client.db('SCICJobTaskDB').collection('users')
+        userCollection = client.db('SCICJobTaskDB2').collection('users')
 
 
         // jwt related API
