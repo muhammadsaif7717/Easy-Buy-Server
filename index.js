@@ -29,7 +29,7 @@ async function run() {
         // await client.connect();
 
 
-        userCollection = client.db('SCICJobTaskDB2').collection('users')
+        userCollection = client.db('SCICJobTask2DB').collection('users')
 
 
         // jwt related API
