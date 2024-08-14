@@ -3,6 +3,8 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const cors = require("cors");
 const app = express();
 require('dotenv').config();
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken');
 const port = process.env.PORT || 5000
 
 app.use(cors())
@@ -32,10 +34,29 @@ async function run() {
         userCollection = client.db('SCICJobTask2DB').collection('users')
 
 
+        // jwt related API
+        app.post('/jwt', async (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+            res.send({ token })
+        })
 
         //user related API's
         app.get('/users', async (req, res) => {
             res.send(await userCollection.find().toArray())
+        })
+        app.post('/users', async (req, res) => {
+            let user = req.body;
+            const salt = await bcrypt.genSalt(10);
+            const hashedPin = await bcrypt.hash(user.pin, salt);
+            user = {
+                name: user.name,
+                pin: hashedPin,
+                emailOrPhone: user.emailOrPhone,
+                balance: 0,
+                status: 'pending',
+            }
+            res.send(await userCollection.insertOne(user))
         })
 
 
