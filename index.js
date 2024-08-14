@@ -45,9 +45,6 @@ async function run() {
         app.get('/users', async (req, res) => {
             res.send(await userCollection.find().toArray())
         })
-        app.get('/tk', async (req, res) => {
-            res.send(await userCollection.find().toArray())
-        })
         app.post('/users', async (req, res) => {
             let user = req.body;
             const salt = await bcrypt.genSalt(10);
