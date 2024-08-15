@@ -24,14 +24,16 @@ const client = new MongoClient(uri, {
 });
 
 
-let userCollection;
+let usersCollection;
+let productsCollection;
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
         // await client.connect();
 
 
-        userCollection = client.db('SCICJobTask2DB').collection('users')
+        usersCollection = client.db('SCICJobTask2DB').collection('users')
+        productsCollection = client.db('SCICJobTask2DB').collection('products')
 
 
         // jwt related API
@@ -41,9 +43,9 @@ async function run() {
             res.send({ token })
         })
 
-        //user related API's
+        //users related API's
         app.get('/users', async (req, res) => {
-            res.send(await userCollection.find().toArray())
+            res.send(await usersCollection.find().toArray())
         })
         app.post('/users', async (req, res) => {
             let user = req.body;
@@ -56,8 +58,34 @@ async function run() {
                 balance: 0,
                 status: 'pending',
             }
-            res.send(await userCollection.insertOne(user))
+            res.send(await usersCollection.insertOne(user))
         })
+
+        // products related API's
+        app.get('/products', async (req, res) => {
+            try {
+                const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+                const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page if not provided
+                const skip = (page - 1) * limit;
+
+                // Fetch products with pagination
+                const products = await productsCollection.find().skip(skip).limit(limit).toArray();
+
+                // Get the total number of products to calculate the total pages
+                const totalProducts = await productsCollection.countDocuments();
+
+                res.send({
+                    products,
+                    totalProducts,
+                    totalPages: Math.ceil(totalProducts / limit),
+                    currentPage: page,
+                });
+            } catch (err) {
+                res.status(500).send({ message: 'Error fetching products', error: err.message });
+            }
+        });
+
+
 
 
 
