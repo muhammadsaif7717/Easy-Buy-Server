@@ -63,40 +63,32 @@ async function run() {
 
         // products related API's
         app.get('/products', async (req, res) => {
-            try {
-                const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
-                const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page if not provided
-                const skip = (page - 1) * limit;
-
-                // Fetch products with pagination
-                const products = await productsCollection.find().skip(skip).limit(limit).toArray();
-
-                // Get the total number of products to calculate the total pages
-                const totalProducts = await productsCollection.countDocuments();
-
-                res.send({
-                    products,
-                    totalProducts,
-                    totalPages: Math.ceil(totalProducts / limit),
-                    currentPage: page,
-                });
-            } catch (err) {
-                res.status(500).send({ message: 'Error fetching products', error: err.message });
-            }
+            const products = await productsCollection.find().toArray();
+            res.send({ products });
         });
 
+        // app.get('/products', async (req, res) => {
+        //     const page = parseInt(req.query.page) || 1; 
+        //     const limit = parseInt(req.query.limit) || 10; 
+        //     const skip = (page - 1) * limit;
 
+        //     try {
+        //         const totalProducts = await productsCollection.countDocuments();
+        //         const products = await productsCollection.find()
+        //             .skip(skip)
+        //             .limit(limit)
+        //             .toArray();
 
-
-
-
-
-
-
-
-
-
-
+        //         res.send({
+        //             products,
+        //             totalProducts,
+        //             totalPages: Math.ceil(totalProducts / limit),
+        //             currentPage: page
+        //         });
+        //     } catch (err) {
+        //         res.status(500).send({ error: err.message });
+        //     }
+        // });
 
 
 
