@@ -44,24 +44,31 @@ async function run() {
         })
 
         //users related API's
-        app.get('/users', async (req, res) => {
-            res.send(await usersCollection.find().toArray())
-        })
+        // post user if not existing user
         app.post('/users', async (req, res) => {
-            let user = req.body;
-            const salt = await bcrypt.genSalt(10);
-            const hashedPin = await bcrypt.hash(user.pin, salt);
-            user = {
-                name: user.name,
-                pin: hashedPin,
-                emailOrPhone: user.emailOrPhone,
-                balance: 0,
-                status: 'pending',
+            const user = req.body;
+            const emailQuery = { email: user.email };
+            const existingUser = await usersCollection.findOne(emailQuery);
+            // if (existingUser) {
+            //     return res.status(403).send({ message: 'User already Exists' });
+            // }
+            if (!existingUser) {
+                const result = await usersCollection.insertOne(user);
+                res.send({ result });
             }
-            res.send(await usersCollection.insertOne(user))
-        })
+        });
+
+        // get all users
+        app.get('/users', async (req, res) => {
+            res.send(await userCollection.find(req.body).toArray());
+        });
+
+
+
+
 
         // products related API's
+        // get all products
         app.get('/products', async (req, res) => {
             const products = await productsCollection.find().toArray();
             res.send({ products });
